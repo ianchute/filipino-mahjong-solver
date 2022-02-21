@@ -53,7 +53,7 @@ class Game:
         )
         shuffle(self.deck)
 
-    def initialize_hands(self):
+    def random_hand(self):
         for _ in range(16):
             tile = choice(self.deck)
             self.deck.remove(tile)
