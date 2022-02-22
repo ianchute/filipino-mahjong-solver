@@ -1,4 +1,4 @@
-# Filipino Mahjong Solver
+# :mahjong: Filipino Mahjong Solver
 
 ## Requirements
 
