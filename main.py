@@ -107,16 +107,6 @@ solver = Solver(game)
 best_triple_combo, best_double_combo = solver.compute_victory_distance(debug=True)
 print(best_triple_combo, best_double_combo)
 
-for tile in Tile: # TODO: exclude unrelated from search
-    best_triple_combo, best_double_combo = solver.compute_victory_distance(
-        hypothesis_tiles=[tile]
-    )
-    print(tile.name, min([6 - best_triple_combo, 8 - best_double_combo]))
-    # if (best_triple_combo == 6) or (best_double_combo == 8):
-    #     print(
-    #         tile.name,
-    #         "win!",
-    #     )
-
+solver.forecast().to_csv("results.csv", index=False)
 pd.Series(TIMES).to_csv("times.csv", float_format="%.3f")
 pd.Series(solver.cache).to_csv("cache.csv")

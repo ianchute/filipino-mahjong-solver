@@ -201,13 +201,18 @@ class Solver:
     def _normalize_combo_list(self, combos, hand_counter: Counter):
         normalized = []
         for combo, count in Counter(combos).items():
+            # the number of combinations can only be as many as the least frequent tile in the combo
             max_potential_count = min(hand_counter[tile] for tile in combo)
             normalized += [combo] * min(count, max_potential_count)
         return normalized
 
-    def compute_victory_distance(self, hypothesis_tiles=[], debug=False):
+    def compute_victory_distance(
+        self, hypothetical_additions=[], hypothetical_removals=[], debug=False
+    ):
         p = print if debug else lambda *a, **k: None
-        hand = self.game.player_hand_up + hypothesis_tiles
+        hand: list = self.game.player_hand_up + hypothetical_additions
+        for tile in hypothetical_removals:
+            hand.remove(tile)
         hand = sorted(hand, key=lambda t: t.name)
         hand_counter = Counter(hand)
 
@@ -321,3 +326,42 @@ class Solver:
         # p("Cache hits:", CACHE_HITS)
 
         return best_triple_combo, best_double_combo
+
+    def forecast(self):
+        results = []
+
+        for tile_add in Tile:
+            best_triple_combo, best_double_combo = self.compute_victory_distance(
+                hypothetical_additions=[tile_add]
+            )
+            result = {
+                "tile_add": tile_add.name,
+                "tile_remove": None,
+                "best_triple_combo": best_triple_combo,
+                "best_double_combo": best_double_combo,
+            }
+            results.append(result)
+
+        for tile_add in Tile:
+            for tile_remove in Tile:
+                if tile_add == tile_remove or (
+                    tile_remove not in self.game.player_hand_up
+                ):
+                    continue
+                best_triple_combo, best_double_combo = self.compute_victory_distance(
+                    hypothetical_additions=[tile_add],
+                    hypothetical_removals=[tile_remove],
+                )
+                result = {
+                    "tile_add": tile_add.name,
+                    "tile_remove": tile_remove.name,
+                    "best_triple_combo": best_triple_combo,
+                    "best_double_combo": best_double_combo,
+                }
+                results.append(result)
+
+        return (
+            pd.DataFrame(results)
+            .sort_values(["best_triple_combo", "best_double_combo"], ascending=False)
+            .reset_index(drop=True)
+        )
