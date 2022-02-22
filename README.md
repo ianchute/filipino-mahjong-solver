@@ -1,9 +1,17 @@
-# filipino-mahjong-solver
-Filipino Mahjong Solver
+# Filipino Mahjong Solver
 
-How to run:
+## Requirements
+
+- Python 3.8 or higher
+- Poetry
+
+## How to run:
 
 1. `poetry install`
 2. `poetry shell`
 3. `python -m main`
 4. `results.csv` will contain the victory forecast
+
+## Website
+
+Coming soon!
