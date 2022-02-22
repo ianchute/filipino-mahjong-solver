@@ -1,7 +1,7 @@
 import pandas as pd
 from models.game import Game
 from models.tile import Tile
-from solver import Solver
+from solver import Solver, TIMES
 
 print("Initializing game...")
 game = Game()
@@ -19,15 +19,73 @@ game.random_hand()
 #     Tile.BAMBOO_7,
 #     Tile.BAMBOO_8,
 #     Tile.BAMBOO_9,
-#     Tile.CHARACTER_1,
 #     Tile.CHARACTER_2,
 #     Tile.CHARACTER_3,
 #     Tile.CHARACTER_4,
 #     Tile.CHARACTER_5,
 #     Tile.CHARACTER_6,
 #     Tile.NORTH,
-#     Tile.NORTH
+#     Tile.NORTH,
 # ]
+# game.player_hand_up = [
+#     Tile.BAMBOO_1,
+#     Tile.BAMBOO_1,
+#     Tile.BAMBOO_2,
+#     Tile.BAMBOO_2,
+#     Tile.BAMBOO_3,
+#     Tile.BAMBOO_3,
+#     Tile.BAMBOO_4,
+#     Tile.BAMBOO_4,
+#     Tile.BAMBOO_5,
+#     Tile.BAMBOO_5,
+#     Tile.BAMBOO_6,
+#     Tile.BAMBOO_6,
+#     Tile.BAMBOO_7,
+#     Tile.BAMBOO_7,
+#     Tile.BAMBOO_8,
+#     Tile.BAMBOO_8,
+# ]
+# game.player_hand_up = [
+#     Tile.BAMBOO_1,
+#     Tile.BAMBOO_1,
+#     Tile.BAMBOO_1,
+#     Tile.BAMBOO_2,
+#     Tile.BAMBOO_2,
+#     Tile.BAMBOO_2,
+#     Tile.BAMBOO_3,
+#     Tile.BAMBOO_3,
+#     Tile.BAMBOO_3,
+#     Tile.BAMBOO_4,
+#     Tile.BAMBOO_4,
+#     Tile.BAMBOO_4,
+#     Tile.BAMBOO_5,
+#     Tile.BAMBOO_5,
+#     Tile.BAMBOO_5,
+#     Tile.BAMBOO_6,
+# ]
+# game.player_hand_up = [
+#     Tile[i]
+#     for i in """
+# SOUTH
+# RED
+# BAMBOO_2
+# BAMBOO_4
+# BAMBOO_6
+# BAMBOO_8
+# DOT_1
+# DOT_3
+# DOT_3
+# DOT_4
+# DOT_6
+# DOT_8
+# DOT_9
+# CHARACTER_1
+# CHARACTER_2
+# CHARACTER_3
+# """.strip().split()
+# ]
+
+assert len(game.player_hand_up) == 16
 print(f"\n\nThere are {len(game.deck)} tiles in the deck!")
 
 print(f"\n\nThere are {len(game.player_hand_up)} tiles in the player's hand!\n")
@@ -46,4 +104,19 @@ print("\n\n")
 
 solver = Solver(game)
 
-solver.compute_victory_distance()
+best_triple_combo, best_double_combo = solver.compute_victory_distance(debug=True)
+print(best_triple_combo, best_double_combo)
+
+for tile in Tile: # TODO: exclude unrelated from search
+    best_triple_combo, best_double_combo = solver.compute_victory_distance(
+        hypothesis_tiles=[tile]
+    )
+    print(tile.name, min([6 - best_triple_combo, 8 - best_double_combo]))
+    # if (best_triple_combo == 6) or (best_double_combo == 8):
+    #     print(
+    #         tile.name,
+    #         "win!",
+    #     )
+
+pd.Series(TIMES).to_csv("times.csv", float_format="%.3f")
+pd.Series(solver.cache).to_csv("cache.csv")
