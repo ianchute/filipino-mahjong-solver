@@ -5,12 +5,11 @@ from models.tile import Tile
 
 
 class Game:
-    deck: List[Tile] = [] # cards still up (including other players)
-    pile: List[Tile] = [] # cards downed (including other players)
-    player_hand_up: List[Tile] = []
-    player_hand_down: List[Tile] = []
-
     def __init__(self):
+        self.deck: List[Tile] = []  # cards still up (including other players)
+        self.pile: List[Tile] = []  # cards downed (including other players)
+        self.player_hand_up: List[Tile] = []
+        self.player_hand_down: List[Tile] = []
         self.deck = (
             [Tile.BAMBOO_1] * 4
             + [Tile.BAMBOO_2] * 4
@@ -59,3 +58,14 @@ class Game:
             self.deck.remove(tile)
             self.player_hand_up.append(tile)
             self.player_hand_up.sort(key=lambda t: t.value)
+
+    def down_tile(self, tile: Tile):
+        self.deck.remove(tile)
+        self.pile.append(tile)
+
+    def random_deck_tile(self):
+        return choice(self.deck)
+
+    def take_tile(self, tile_add: Tile, tile_remove: Tile):
+        self.player_hand_up.append(tile_add)
+        self.player_hand_up.remove(tile_remove)

@@ -360,8 +360,29 @@ class Solver:
                 }
                 results.append(result)
 
-        return (
+        forecast = (
             pd.DataFrame(results)
             .sort_values(["best_triple_combo", "best_double_combo"], ascending=False)
             .reset_index(drop=True)
         )
+
+        tile_probabilities = (
+            pd.Series([t.value for t in self.game.deck])
+            .value_counts(True)
+            .sort_index()
+            .rename(index=lambda i: Tile(i).name)
+        ) * 100
+        forecast["p"] = forecast["tile_add"].map(tile_probabilities)
+        forecast["best_triple_combo_p"] = (
+            forecast["best_triple_combo"] / 6 * forecast["p"]
+        )
+        forecast["best_double_combo_p"] = (
+            forecast["best_double_combo"] / 8 * forecast["p"]
+        )
+        forecast["victory_score"] = forecast[
+            ["best_triple_combo_p", "best_double_combo_p"]
+        ].max(axis=1)
+        forecast = forecast.sort_values("victory_score", ascending=False).reset_index(
+            drop=True
+        )
+        return forecast
